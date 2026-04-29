@@ -128,93 +128,116 @@ export function LearningWorkspace({
   }
 
   return (
-    <section className="workspace-panel" aria-labelledby="workspace-title">
-      <div className="workspace-header">
-        <div>
-          <p className="eyebrow">Student workspace</p>
-          <h2 id="workspace-title">Try the exercise</h2>
-          <p className="muted">{exercise}</p>
-        </div>
-        <label className="switch-row">
-          <input
-            checked={isCoachEnabled}
-            onChange={(event) => setIsCoachEnabled(event.target.checked)}
-            type="checkbox"
-          />
-          <span>AI Coach</span>
-        </label>
-      </div>
-
-      <div
-        className="drop-zone"
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={handleDrop}
+    <>
+      <section
+        className="workspace-panel ide-code-panel"
+        aria-labelledby="student-workspace"
       >
-        <span>{dropMessage}</span>
-      </div>
+        <div className="ide-tabs">
+          <span className="ide-tab active">student-solution.ts</span>
+          <span className="ide-tab">exercise.prompt</span>
+        </div>
+        <div className="workspace-header">
+          <div>
+            <p className="eyebrow">Student workspace</p>
+            <h2 id="student-workspace">Try the exercise</h2>
+            <p className="muted">{exercise}</p>
+          </div>
+        </div>
 
-      <textarea
-        className="field code-field"
-        placeholder="Type, paste, or drop your code here..."
-        value={submission}
-        onChange={(event) => setSubmission(event.target.value)}
-      />
-
-      <div className="workspace-actions">
-        <button
-          className="button primary"
-          disabled={isReviewing || !submission.trim()}
-          onClick={requestReview}
-          type="button"
+        <div
+          className="drop-zone"
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={handleDrop}
         >
-          {isReviewing ? "Reviewing..." : "Submit for review"}
-        </button>
-        <button
-          className="button secondary"
-          onClick={() => setSubmission("")}
-          type="button"
-        >
-          Clear
-        </button>
-      </div>
+          <span>{dropMessage}</span>
+        </div>
 
-      {isCoachEnabled ? (
-        <div className="coach-box">
-          <h3>Ask the AI coach</h3>
+        <textarea
+          className="field code-field"
+          placeholder="// Type, paste, or drop your code here..."
+          value={submission}
+          onChange={(event) => setSubmission(event.target.value)}
+        />
+
+        <div className="workspace-actions">
+          <button
+            className="button primary"
+            disabled={isReviewing || !submission.trim()}
+            onClick={requestReview}
+            type="button"
+          >
+            {isReviewing ? "Running review..." : "Run Review"}
+          </button>
+          <button
+            className="button secondary"
+            onClick={() => setSubmission("")}
+            type="button"
+          >
+            Clear Editor
+          </button>
+        </div>
+      </section>
+
+      <aside className="coach-panel" id="coach-panel" aria-label="AI coach panel">
+        <div className="ide-tabs">
+          <span className="ide-tab active">AI Coach</span>
+        </div>
+        <div className="coach-panel-body">
+          <div className="coach-header">
+            <div>
+              <p className="eyebrow">Agent mode</p>
+              <h2>Coach</h2>
+            </div>
+            <label className="switch-row">
+              <input
+                checked={isCoachEnabled}
+                onChange={(event) => setIsCoachEnabled(event.target.checked)}
+                type="checkbox"
+              />
+              <span>{isCoachEnabled ? "On" : "Off"}</span>
+            </label>
+          </div>
           <p className="muted">
-            The coach can use the lesson and your workspace code to give hints
-            without jumping straight to the answer.
+            Toggle the coach on to ask for hints, debugging help, or review
+            direction using the current lesson and editor contents.
           </p>
           <textarea
-            className="field"
+            className="field coach-field"
+            disabled={!isCoachEnabled}
             placeholder="Ask for a hint, error explanation, or next step..."
             value={coachQuestion}
             onChange={(event) => setCoachQuestion(event.target.value)}
           />
           <button
             className="button primary"
-            disabled={isCoaching || !coachQuestion.trim()}
+            disabled={isCoaching || !isCoachEnabled || !coachQuestion.trim()}
             onClick={askCoach}
             type="button"
           >
-            {isCoaching ? "Coaching..." : "Ask coach"}
+            {isCoaching ? "Coaching..." : "Ask Coach"}
           </button>
+          <div className="chat-output" aria-live="polite">
+            {coachResponse
+              ? `${getSourceLabel(coachResponse.source)} coach:\n\n${coachResponse.answer}`
+              : "Coach messages will appear here."}
+          </div>
         </div>
-      ) : null}
+      </aside>
 
-      <div className="result" aria-live="polite">
-        {review
-          ? `${getSourceLabel(review.source)} review:\n\n${review.review}`
-          : "Submit your code to get review feedback."}
-      </div>
-
-      {isCoachEnabled ? (
-        <div className="result" aria-live="polite">
-          {coachResponse
-            ? `${getSourceLabel(coachResponse.source)} coach:\n\n${coachResponse.answer}`
-            : "Coach guidance will appear here."}
+      <section className="output-panel" aria-label="Review output">
+        <div className="output-tabs">
+          <span className="active">Review</span>
+          <span>Tests</span>
+          <span>Console</span>
+          <span>History</span>
         </div>
-      ) : null}
-    </section>
+        <div className="terminal-output" aria-live="polite">
+          {review
+            ? `${getSourceLabel(review.source)} review:\n\n${review.review}`
+            : "Run Review to see feedback, next steps, and rubric notes here."}
+        </div>
+      </section>
+    </>
   );
 }

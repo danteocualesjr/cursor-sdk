@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { AppChrome } from "@/components/AppChrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,24 +16,7 @@ export default function RootLayout({
   return (
     <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <div className="shell">
-          <nav className="nav" aria-label="Primary navigation">
-            <Link className="brand" href="/">
-              <span className="brand-mark">BC</span>
-              <span>Bootcamp Companion</span>
-            </Link>
-            <div className="nav-links">
-              <Link href="/#courses">Courses</Link>
-              <Link href="/dashboard">Dashboard</Link>
-              <Link href="/mentor">AI Mentor</Link>
-            </div>
-          </nav>
-        </div>
-        {children}
-        <footer className="shell footer">
-          Built as a focused MVP for crash-course learning, project practice, and
-          Cursor SDK-powered mentorship.
-        </footer>
+        <AppChrome>{children}</AppChrome>
       </body>
     </html>
   );
