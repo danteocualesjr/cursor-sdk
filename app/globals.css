@@ -1,0 +1,397 @@
+:root {
+  --background: #f7f3ea;
+  --foreground: #1f211f;
+  --muted: #6d7168;
+  --panel: #fffaf0;
+  --panel-strong: #ffffff;
+  --border: #ded5c4;
+  --accent: #1f6f56;
+  --accent-strong: #14523f;
+  --accent-soft: #dceee7;
+  --gold: #e9b44c;
+  --rose: #f1d4ca;
+  --ink: #151716;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(233, 180, 76, 0.24), transparent 28rem),
+    radial-gradient(circle at 80% 10%, rgba(31, 111, 86, 0.18), transparent 24rem),
+    var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.shell {
+  margin: 0 auto;
+  max-width: 1180px;
+  padding: 0 24px;
+}
+
+.nav {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 24px 0;
+}
+
+.brand {
+  align-items: center;
+  display: flex;
+  font-weight: 800;
+  gap: 10px;
+  letter-spacing: -0.03em;
+}
+
+.brand-mark {
+  align-items: center;
+  background: var(--ink);
+  border-radius: 14px;
+  color: white;
+  display: inline-flex;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.nav-links {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+}
+
+.nav-links a {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.hero {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: 1.1fr 0.9fr;
+  padding: 54px 0 42px;
+}
+
+.eyebrow {
+  color: var(--accent-strong);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(42px, 7vw, 78px);
+  letter-spacing: -0.07em;
+  line-height: 0.92;
+  margin-bottom: 22px;
+}
+
+h2 {
+  font-size: clamp(30px, 4vw, 48px);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+h3 {
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1.6;
+  max-width: 680px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.button {
+  align-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+  padding: 13px 20px;
+}
+
+.button.primary {
+  background: var(--ink);
+  color: white;
+}
+
+.button.secondary {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.panel {
+  background: rgba(255, 250, 240, 0.84);
+  border: 1px solid var(--border);
+  border-radius: 32px;
+  box-shadow: 0 24px 80px rgba(31, 33, 31, 0.08);
+  padding: 26px;
+}
+
+.mentor-card {
+  align-self: start;
+  display: grid;
+  gap: 18px;
+}
+
+.chat-bubble {
+  background: var(--panel-strong);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  color: var(--muted);
+  line-height: 1.55;
+  padding: 18px;
+}
+
+.chat-bubble strong {
+  color: var(--foreground);
+}
+
+.stats {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.stat {
+  background: var(--accent-soft);
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.stat b {
+  display: block;
+  font-size: 28px;
+  letter-spacing: -0.05em;
+}
+
+.section {
+  padding: 54px 0;
+}
+
+.section-heading {
+  align-items: end;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-heading p {
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 540px;
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+
+.grid.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid.four {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.grid.two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.course-card {
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
+  padding: 22px;
+}
+
+.course-card.featured {
+  background: var(--panel-strong);
+  border-color: rgba(31, 111, 86, 0.4);
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.tag {
+  background: var(--accent-soft);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 7px 10px;
+}
+
+.tag.muted {
+  background: #eee7db;
+  color: var(--muted);
+}
+
+.course-card p,
+.muted {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.course-card .button {
+  margin-top: auto;
+}
+
+.module-list {
+  display: grid;
+  gap: 12px;
+}
+
+.module-item {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.progress {
+  background: #e8dfd0;
+  border-radius: 999px;
+  height: 10px;
+  overflow: hidden;
+}
+
+.progress span {
+  background: var(--accent);
+  display: block;
+  height: 100%;
+}
+
+.lesson-layout {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.lesson-body {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 26px;
+}
+
+.lesson-body li {
+  margin: 9px 0;
+}
+
+.mentor-panel {
+  position: sticky;
+  top: 18px;
+}
+
+.form-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px 16px;
+  width: 100%;
+}
+
+textarea.field {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.result {
+  background: #f3efe7;
+  border-radius: 22px;
+  color: var(--muted);
+  line-height: 1.6;
+  min-height: 120px;
+  padding: 16px;
+  white-space: pre-wrap;
+}
+
+.footer {
+  color: var(--muted);
+  padding: 46px 0;
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .lesson-layout,
+  .grid.two,
+  .grid.three,
+  .grid.four {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .nav {
+    align-items: start;
+    gap: 18px;
+  }
+
+  .nav,
+  .nav-links {
+    flex-direction: column;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
