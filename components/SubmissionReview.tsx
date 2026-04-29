@@ -4,8 +4,20 @@ import { useState } from "react";
 
 type ReviewResponse = {
   review: string;
-  source: "cursor-sdk" | "demo";
+  source: "cursor-sdk" | "openai" | "demo";
 };
+
+function getSourceLabel(source: ReviewResponse["source"]) {
+  if (source === "cursor-sdk") {
+    return "Cursor SDK";
+  }
+
+  if (source === "openai") {
+    return "OpenAI";
+  }
+
+  return "Demo review";
+}
 
 export function SubmissionReview({
   courseTitle,
@@ -72,7 +84,7 @@ export function SubmissionReview({
       </div>
       <div className="result" aria-live="polite">
         {review
-          ? `${review.source === "cursor-sdk" ? "Cursor SDK" : "Demo review"}:\n\n${review.review}`
+          ? `${getSourceLabel(review.source)}:\n\n${review.review}`
           : "Submission feedback will appear here."}
       </div>
     </section>

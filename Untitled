@@ -1,0 +1,7 @@
+# Cursor SDK is preferred when available.
+CURSOR_API_KEY=
+CURSOR_MODEL=composer-2
+
+# OpenAI is used as a fallback when CURSOR_API_KEY is not set.
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini

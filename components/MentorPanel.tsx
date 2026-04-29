@@ -4,8 +4,20 @@ import { useState } from "react";
 
 type MentorResponse = {
   answer: string;
-  source: "cursor-sdk" | "demo";
+  source: "cursor-sdk" | "openai" | "demo";
 };
+
+function getSourceLabel(source: MentorResponse["source"]) {
+  if (source === "cursor-sdk") {
+    return "Cursor SDK";
+  }
+
+  if (source === "openai") {
+    return "OpenAI";
+  }
+
+  return "Demo mentor";
+}
 
 export function MentorPanel({
   courseTitle,
@@ -83,7 +95,7 @@ export function MentorPanel({
       </div>
       <div className="result" aria-live="polite">
         {response
-          ? `${response.source === "cursor-sdk" ? "Cursor SDK" : "Demo mentor"}:\n\n${response.answer}`
+          ? `${getSourceLabel(response.source)}:\n\n${response.answer}`
           : "Mentor guidance will appear here."}
       </div>
     </aside>

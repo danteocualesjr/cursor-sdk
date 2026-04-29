@@ -10,7 +10,7 @@ type AgentPrompt = {
 
 type AgentResult = {
   text: string;
-  source: "cursor-sdk" | "demo";
+  source: "cursor-sdk" | "openai" | "demo";
 };
 
 const mentorFallback = `Start by naming the exact concept involved, then test your understanding with one tiny example. If code is failing, read the error from top to bottom, isolate the line that triggered it, and change one thing at a time.`;
@@ -91,14 +91,44 @@ async function collectRunText(run: unknown): Promise<string> {
   return "";
 }
 
-export async function runCursorAgent(input: AgentPrompt): Promise<AgentResult> {
-  const fallback = input.task === "review" ? reviewFallback : mentorFallback;
-
-  if (!process.env.CURSOR_API_KEY) {
+async function runOpenAI(input: AgentPrompt, fallback: string): Promise<AgentResult> {
+  if (!process.env.OPENAI_API_KEY) {
     return {
       source: "demo",
       text: fallback,
     };
+  }
+
+  try {
+    const OpenAI = (await import("openai")).default;
+    const client = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const response = await client.responses.create({
+      model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
+      input: buildPrompt(input),
+    });
+
+    return {
+      source: "openai",
+      text: response.output_text || fallback,
+    };
+  } catch (error) {
+    console.error("OpenAI run failed", error);
+
+    return {
+      source: "demo",
+      text: `${fallback}\n\nOpenAI is configured in the app, but this request used demo feedback because the model call failed. Check OPENAI_API_KEY, OPENAI_MODEL, billing, and server logs.`,
+    };
+  }
+}
+
+export async function runCursorAgent(input: AgentPrompt): Promise<AgentResult> {
+  const fallback = input.task === "review" ? reviewFallback : mentorFallback;
+
+  if (!process.env.CURSOR_API_KEY) {
+    return runOpenAI(input, fallback);
   }
 
   try {
@@ -119,9 +149,6 @@ export async function runCursorAgent(input: AgentPrompt): Promise<AgentResult> {
   } catch (error) {
     console.error("Cursor SDK run failed", error);
 
-    return {
-      source: "demo",
-      text: `${fallback}\n\nCursor SDK is configured in the app, but this request used demo feedback because the agent call failed. Check CURSOR_API_KEY, CURSOR_MODEL, and server logs.`,
-    };
+    return runOpenAI(input, fallback);
   }
 }

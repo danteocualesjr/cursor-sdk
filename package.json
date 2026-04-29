@@ -12,6 +12,7 @@
   "dependencies": {
     "@cursor/sdk": "latest",
     "next": "latest",
+    "openai": "^6.35.0",
     "react": "latest",
     "react-dom": "latest"
   },

@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html data-scroll-behavior="smooth" lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <div className="shell">
           <nav className="nav" aria-label="Primary navigation">
             <Link className="brand" href="/">
