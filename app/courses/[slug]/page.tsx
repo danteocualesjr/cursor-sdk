@@ -48,32 +48,40 @@ export default async function CoursePage({
             BC
           </Link>
           <a className="activity-icon active" href="#lesson-title" aria-label="Lessons">
-            L
+            <span>01</span>
+            Lesson
           </a>
           <a className="activity-icon" href="#student-workspace" aria-label="Code">
-            C
+            <span>02</span>
+            Code
           </a>
           <a className="activity-icon" href="#coach-panel" aria-label="AI coach">
-            AI
+            <span>03</span>
+            Coach
           </a>
         </aside>
 
         <aside className="ide-explorer" aria-label="Course navigation">
           <div className="explorer-header">
-            <span>Explorer</span>
+            <span>Learning Workspace</span>
             <Link href="/dashboard">Dashboard</Link>
           </div>
 
           <div className="file-tree">
-            <p className="tree-root">{course.shortTitle}</p>
+            <div className="track-card">
+              <span>{course.status}</span>
+              <strong>{course.shortTitle}</strong>
+              <small>{course.duration} / {course.level}</small>
+            </div>
+            <p className="tree-root">Open Panels</p>
             <Link className="tree-file active" href="#lesson-title">
-              current.lesson.md
+              Lesson brief
             </Link>
             <Link className="tree-file" href="#student-workspace">
-              student-solution.ts
+              Student code
             </Link>
             <Link className="tree-file" href="#coach-panel">
-              ai-coach.chat
+              AI coach
             </Link>
             {course.modules.length ? (
               course.modules.map((module, moduleIndex) => (
@@ -123,9 +131,15 @@ export default async function CoursePage({
                 <h1 id="lesson-title">{firstLesson?.title}</h1>
                 <p className="lead">{firstLesson?.summary}</p>
 
-                <div className="code-card">
-                  <span>Learning goal</span>
-                  <p>{course.modules[0]?.outcome}</p>
+                <div className="lesson-brief-grid">
+                  <div className="brief-card primary">
+                    <span>Learning goal</span>
+                    <p>{course.modules[0]?.outcome}</p>
+                  </div>
+                  <div className="brief-card">
+                    <span>Exercise</span>
+                    <p>{firstLesson?.exercise}</p>
+                  </div>
                 </div>
 
                 <h3>Checkpoints</h3>

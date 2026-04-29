@@ -143,6 +143,7 @@ export function LearningWorkspace({
             <h2 id="student-workspace">Try the exercise</h2>
             <p className="muted">{exercise}</p>
           </div>
+          <span className="editor-badge">Unsaved</span>
         </div>
 
         <div
@@ -153,12 +154,28 @@ export function LearningWorkspace({
           <span>{dropMessage}</span>
         </div>
 
-        <textarea
-          className="field code-field"
-          placeholder="// Type, paste, or drop your code here..."
-          value={submission}
-          onChange={(event) => setSubmission(event.target.value)}
-        />
+        <div className="editor-frame">
+          <div className="line-gutter" aria-hidden="true">
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+            <span>6</span>
+            <span>7</span>
+            <span>8</span>
+            <span>9</span>
+            <span>10</span>
+            <span>11</span>
+            <span>12</span>
+          </div>
+          <textarea
+            className="field code-field"
+            placeholder="// Type, paste, or drop your code here..."
+            value={submission}
+            onChange={(event) => setSubmission(event.target.value)}
+          />
+        </div>
 
         <div className="workspace-actions">
           <button
@@ -202,6 +219,29 @@ export function LearningWorkspace({
             Toggle the coach on to ask for hints, debugging help, or review
             direction using the current lesson and editor contents.
           </p>
+          <div className="coach-suggestions" aria-label="Suggested prompts">
+            <button
+              disabled={!isCoachEnabled}
+              onClick={() => setCoachQuestion("Give me a hint without solving it.")}
+              type="button"
+            >
+              Hint
+            </button>
+            <button
+              disabled={!isCoachEnabled}
+              onClick={() => setCoachQuestion("What should I check before submitting?")}
+              type="button"
+            >
+              Checklist
+            </button>
+            <button
+              disabled={!isCoachEnabled}
+              onClick={() => setCoachQuestion("Explain the likely bug in my code.")}
+              type="button"
+            >
+              Debug
+            </button>
+          </div>
           <textarea
             className="field coach-field"
             disabled={!isCoachEnabled}
