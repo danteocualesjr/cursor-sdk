@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CourseCard } from "@/components/CourseCard";
 import { ProgressDashboard } from "@/components/ProgressDashboard";
-import { courses, liveCourses } from "@/lib/courses";
+import { courses, getCatalogSummary } from "@/lib/courses";
 
 const outcomes = [
   "Prep before bootcamp starts",
@@ -11,6 +11,8 @@ const outcomes = [
 ];
 
 export default function Home() {
+  const catalogSummary = getCatalogSummary();
+
   return (
     <main>
       <section className="shell hero">
@@ -43,11 +45,11 @@ export default function Home() {
           </div>
           <div className="stats">
             <div className="stat">
-              <b>{liveCourses.length}</b>
+              <b>{catalogSummary.liveCourseCount}</b>
               <span>live MVP tracks</span>
             </div>
             <div className="stat">
-              <b>10</b>
+              <b>{catalogSummary.totalCourseCount}</b>
               <span>planned prep paths</span>
             </div>
             <div className="stat">

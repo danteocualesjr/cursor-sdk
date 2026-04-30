@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ProgressDashboard } from "@/components/ProgressDashboard";
-import { liveCourses } from "@/lib/courses";
+import { getCatalogSummary, liveCourses } from "@/lib/courses";
 
 export default function DashboardPage() {
   const nextCourse = liveCourses[0];
+  const catalogSummary = getCatalogSummary();
 
   return (
     <main className="shell section">
@@ -20,15 +21,15 @@ export default function DashboardPage() {
 
       <section className="grid three">
         <div className="stat">
-          <b>3</b>
+          <b>{catalogSummary.liveCourseCount}</b>
           <span>active tracks</span>
         </div>
         <div className="stat">
-          <b>14</b>
+          <b>{catalogSummary.lessonCount}</b>
           <span>lessons ready</span>
         </div>
         <div className="stat">
-          <b>5</b>
+          <b>{catalogSummary.projectCount}</b>
           <span>practice projects</span>
         </div>
       </section>

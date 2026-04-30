@@ -364,15 +364,37 @@ export function getCourse(slug: string) {
   return courses.find((course) => course.slug === slug);
 }
 
+export function getLessonCount(course: Course) {
+  return course.modules.reduce(
+    (count, module) => count + module.lessons.length,
+    0,
+  );
+}
+
+export function getCatalogSummary() {
+  const lessonCount = courses.reduce(
+    (count, course) => count + getLessonCount(course),
+    0,
+  );
+  const projectCount = liveCourses.reduce(
+    (count, course) => count + course.modules.length,
+    0,
+  );
+
+  return {
+    liveCourseCount: liveCourses.length,
+    totalCourseCount: courses.length,
+    lessonCount,
+    projectCount,
+  };
+}
+
 export function getCompletionEstimate(course: Course) {
   if (course.status === "Preview") {
     return 0;
   }
 
-  const totalLessons = course.modules.reduce(
-    (count, module) => count + module.lessons.length,
-    0,
-  );
+  const totalLessons = getLessonCount(course);
 
   return Math.min(100, Math.max(25, totalLessons * 12));
 }
