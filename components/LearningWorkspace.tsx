@@ -42,9 +42,23 @@ export function LearningWorkspace({
   const [isCoaching, setIsCoaching] = useState(false);
   const [isCoachEnabled, setIsCoachEnabled] = useState(false);
   const [dropMessage, setDropMessage] = useState("Drop a code file here, or paste directly below.");
+  const trimmedSubmission = submission.trim();
+  const lineCount = submission ? submission.split(/\r\n|\r|\n/).length : 0;
+  const characterCount = submission.length;
+  const editorStatus = isReviewing
+    ? "Reviewing"
+    : review
+      ? "Reviewed"
+      : trimmedSubmission
+        ? "Ready"
+        : "Empty";
+  const lineNumbers = Array.from(
+    { length: Math.max(12, lineCount || 12) },
+    (_, index) => index + 1,
+  );
 
   async function requestReview() {
-    if (!submission.trim()) {
+    if (!trimmedSubmission) {
       return;
     }
 
@@ -143,7 +157,7 @@ export function LearningWorkspace({
             <h2 id="student-workspace">Try the exercise</h2>
             <p className="muted">{exercise}</p>
           </div>
-          <span className="editor-badge">Unsaved</span>
+          <span className="editor-badge">{editorStatus}</span>
         </div>
 
         <div
@@ -154,22 +168,20 @@ export function LearningWorkspace({
           <span>{dropMessage}</span>
         </div>
 
+        <div className="workspace-meta" aria-label="Editor statistics">
+          <span>{lineCount} lines</span>
+          <span>{characterCount} characters</span>
+          <span>{trimmedSubmission ? "Ready for review" : "Add code to unlock review"}</span>
+        </div>
+
         <div className="editor-frame">
           <div className="line-gutter" aria-hidden="true">
-            <span>1</span>
-            <span>2</span>
-            <span>3</span>
-            <span>4</span>
-            <span>5</span>
-            <span>6</span>
-            <span>7</span>
-            <span>8</span>
-            <span>9</span>
-            <span>10</span>
-            <span>11</span>
-            <span>12</span>
+            {lineNumbers.map((lineNumber) => (
+              <span key={lineNumber}>{lineNumber}</span>
+            ))}
           </div>
           <textarea
+            aria-label="Student code editor"
             className="field code-field"
             placeholder="// Type, paste, or drop your code here..."
             value={submission}
@@ -180,7 +192,7 @@ export function LearningWorkspace({
         <div className="workspace-actions">
           <button
             className="button primary"
-            disabled={isReviewing || !submission.trim()}
+            disabled={isReviewing || !trimmedSubmission}
             onClick={requestReview}
             type="button"
           >
@@ -188,7 +200,12 @@ export function LearningWorkspace({
           </button>
           <button
             className="button secondary"
-            onClick={() => setSubmission("")}
+            disabled={!submission && !review}
+            onClick={() => {
+              setSubmission("");
+              setReview(null);
+              setDropMessage("Drop a code file here, or paste directly below.");
+            }}
             type="button"
           >
             Clear Editor
