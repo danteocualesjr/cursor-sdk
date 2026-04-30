@@ -287,6 +287,73 @@ h3 {
   margin-top: auto;
 }
 
+.catalog-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.catalog-controls {
+  align-items: end;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.catalog-search {
+  color: var(--accent-strong);
+  display: grid;
+  flex: 1;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 8px;
+  letter-spacing: 0.08em;
+  max-width: 420px;
+  text-transform: uppercase;
+}
+
+.catalog-search input {
+  background: var(--panel-strong);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--foreground);
+  padding: 13px 16px;
+}
+
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-pills button {
+  background: #eee7db;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  font-weight: 800;
+  padding: 10px 13px;
+}
+
+.filter-pills button.active,
+.filter-pills button:hover {
+  background: var(--accent-soft);
+  border-color: rgba(31, 111, 86, 0.24);
+  color: var(--accent-strong);
+}
+
+.empty-state {
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px dashed var(--border);
+  border-radius: 28px;
+  padding: 28px;
+  text-align: center;
+}
+
 .module-list {
   display: grid;
   gap: 12px;
@@ -578,6 +645,15 @@ textarea.field {
   .section-heading {
     align-items: start;
     flex-direction: column;
+  }
+
+  .catalog-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .catalog-search {
+    max-width: none;
   }
 
   .nav {

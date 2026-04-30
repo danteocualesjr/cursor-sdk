@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CourseCard } from "@/components/CourseCard";
+import { CourseCatalog } from "@/components/CourseCatalog";
 import { ProgressDashboard } from "@/components/ProgressDashboard";
 import { courses, getCatalogSummary } from "@/lib/courses";
 
@@ -96,11 +96,7 @@ export default function Home() {
             show how the product can expand without changing the core experience.
           </p>
         </div>
-        <div className="grid three">
-          {courses.map((course) => (
-            <CourseCard course={course} key={course.slug} />
-          ))}
-        </div>
+        <CourseCatalog courses={courses} />
       </section>
 
       <section className="shell section">
