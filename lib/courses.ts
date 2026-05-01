@@ -371,6 +371,47 @@ export function getLessonCount(course: Course) {
   );
 }
 
+export type LessonRef = {
+  id: string;
+  moduleIndex: number;
+  lessonIndex: number;
+  module: Module;
+  lesson: Lesson;
+};
+
+function buildLessonId(moduleIndex: number, lessonIndex: number) {
+  return `m${moduleIndex + 1}l${lessonIndex + 1}`;
+}
+
+export function getCourseLessons(course: Course): LessonRef[] {
+  return course.modules.flatMap((module, moduleIndex) =>
+    module.lessons.map((lesson, lessonIndex) => ({
+      id: buildLessonId(moduleIndex, lessonIndex),
+      moduleIndex,
+      lessonIndex,
+      module,
+      lesson,
+    })),
+  );
+}
+
+export function getLessonById(course: Course, lessonId: string | undefined) {
+  const lessons = getCourseLessons(course);
+  if (!lessons.length) {
+    return null;
+  }
+
+  const match = lessonId
+    ? lessons.find((entry) => entry.id === lessonId)
+    : undefined;
+
+  return match ?? lessons[0];
+}
+
+export function lessonFileName(lesson: Lesson) {
+  return `${lesson.title.toLowerCase().replaceAll(" ", "-")}.md`;
+}
+
 export function getCatalogSummary() {
   const lessonCount = courses.reduce(
     (count, course) => count + getLessonCount(course),

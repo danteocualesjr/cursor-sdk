@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LearningWorkspace } from "@/components/LearningWorkspace";
-import { courses, getCourse } from "@/lib/courses";
+import {
+  courses,
+  getCourse,
+  getCourseLessons,
+  getLessonById,
+  lessonFileName,
+} from "@/lib/courses";
 
 export function generateStaticParams() {
   return courses.map((course) => ({
@@ -47,10 +53,19 @@ export async function generateMetadata({
   };
 }
 
+function parseLessonParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) {
+    return value[0];
+  }
+  return value;
+}
+
 export default async function CoursePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { slug } = await params;
   const course = getCourse(slug);
@@ -59,7 +74,18 @@ export default async function CoursePage({
     notFound();
   }
 
-  const firstLesson = course.modules[0]?.lessons[0];
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const lessonParam = parseLessonParam(resolvedSearchParams?.lesson);
+  const lessons = getCourseLessons(course);
+  const activeLesson = getLessonById(course, lessonParam);
+  const activeIndex = activeLesson
+    ? lessons.findIndex((entry) => entry.id === activeLesson.id)
+    : -1;
+  const previousLesson = activeIndex > 0 ? lessons[activeIndex - 1] : undefined;
+  const nextLesson =
+    activeIndex >= 0 && activeIndex < lessons.length - 1
+      ? lessons[activeIndex + 1]
+      : undefined;
 
   return (
     <main className="ide-shell">
@@ -71,7 +97,7 @@ export default async function CoursePage({
         </div>
         <div className="ide-command-center">
           <span>{course.shortTitle}</span>
-          <strong>{firstLesson?.title ?? "Preview track"}</strong>
+          <strong>{activeLesson?.lesson.title ?? "Preview track"}</strong>
         </div>
         <div className="ide-status-strip">
           <span>{course.status}</span>
@@ -127,11 +153,24 @@ export default async function CoursePage({
                   <a href={`#module-${moduleIndex + 1}`}>
                     module-{moduleIndex + 1}
                   </a>
-                  {module.lessons.map((lesson) => (
-                    <span className="tree-file nested" key={lesson.title}>
-                      {lesson.title.toLowerCase().replaceAll(" ", "-")}.md
-                    </span>
-                  ))}
+                  {module.lessons.map((lesson, lessonIndex) => {
+                    const candidate = lessons.find(
+                      (entry) =>
+                        entry.moduleIndex === moduleIndex &&
+                        entry.lessonIndex === lessonIndex,
+                    );
+                    const isActive = candidate?.id === activeLesson?.id;
+
+                    return (
+                      <Link
+                        className={`tree-file nested${isActive ? " active" : ""}`}
+                        href={`/courses/${course.slug}?lesson=${candidate?.id}#lesson-title`}
+                        key={lesson.title}
+                      >
+                        {lessonFileName(lesson)}
+                      </Link>
+                    );
+                  })}
                 </div>
               ))
             ) : (
@@ -140,7 +179,7 @@ export default async function CoursePage({
           </div>
         </aside>
 
-        {course.modules.length === 0 ? (
+        {!activeLesson ? (
           <section className="ide-empty-state">
             <div className="ide-tabs">
               <span className="ide-tab active">preview.md</span>
@@ -160,32 +199,58 @@ export default async function CoursePage({
           <>
             <section className="ide-editor-panel" aria-labelledby="lesson-title">
               <div className="ide-tabs">
-                <span className="ide-tab active">current.lesson.md</span>
+                <span className="ide-tab active">{lessonFileName(activeLesson.lesson)}</span>
                 <span className="ide-tab">rubric.md</span>
                 <span className="ide-tab">notes.md</span>
               </div>
               <div className="ide-panel-content">
-                <p className="eyebrow">Now learning</p>
-                <h1 id="lesson-title">{firstLesson?.title}</h1>
-                <p className="lead">{firstLesson?.summary}</p>
+                <p className="eyebrow">
+                  Module {activeLesson.moduleIndex + 1} · Lesson{" "}
+                  {activeLesson.lessonIndex + 1} of {lessons.length}
+                </p>
+                <h1 id="lesson-title">{activeLesson.lesson.title}</h1>
+                <p className="lead">{activeLesson.lesson.summary}</p>
 
                 <div className="lesson-brief-grid">
                   <div className="brief-card primary">
-                    <span>Learning goal</span>
-                    <p>{course.modules[0]?.outcome}</p>
+                    <span>Module goal</span>
+                    <p>{activeLesson.module.outcome}</p>
                   </div>
                   <div className="brief-card">
                     <span>Exercise</span>
-                    <p>{firstLesson?.exercise}</p>
+                    <p>{activeLesson.lesson.exercise}</p>
                   </div>
                 </div>
 
                 <h3>Checkpoints</h3>
                 <ul className="ide-checklist">
-                  {firstLesson?.checkpoints.map((checkpoint) => (
+                  {activeLesson.lesson.checkpoints.map((checkpoint) => (
                     <li key={checkpoint}>{checkpoint}</li>
                   ))}
                 </ul>
+
+                <nav className="lesson-pager" aria-label="Lesson navigation">
+                  {previousLesson ? (
+                    <Link
+                      className="button secondary"
+                      href={`/courses/${course.slug}?lesson=${previousLesson.id}#lesson-title`}
+                    >
+                      ← {previousLesson.lesson.title}
+                    </Link>
+                  ) : (
+                    <span aria-hidden="true" />
+                  )}
+                  {nextLesson ? (
+                    <Link
+                      className="button primary"
+                      href={`/courses/${course.slug}?lesson=${nextLesson.id}#lesson-title`}
+                    >
+                      {nextLesson.lesson.title} →
+                    </Link>
+                  ) : (
+                    <span className="muted">End of track</span>
+                  )}
+                </nav>
 
                 <div className="module-list compact">
                   {course.modules.map((module, moduleIndex) => (
@@ -199,25 +264,36 @@ export default async function CoursePage({
                       </div>
                       <h3>{module.title}</h3>
                       <p className="muted">{module.outcome}</p>
-                      {module.lessons.map((lesson) => (
-                        <div className="lesson-row" key={lesson.title}>
-                          <strong>{lesson.title}</strong>
-                          <span>{lesson.exercise}</span>
-                        </div>
-                      ))}
+                      {module.lessons.map((lesson, lessonIndex) => {
+                        const candidate = lessons.find(
+                          (entry) =>
+                            entry.moduleIndex === moduleIndex &&
+                            entry.lessonIndex === lessonIndex,
+                        );
+                        const isActive = candidate?.id === activeLesson.id;
+
+                        return (
+                          <Link
+                            className={`lesson-row${isActive ? " active" : ""}`}
+                            href={`/courses/${course.slug}?lesson=${candidate?.id}#lesson-title`}
+                            key={lesson.title}
+                          >
+                            <strong>{lesson.title}</strong>
+                            <span>{lesson.exercise}</span>
+                          </Link>
+                        );
+                      })}
                     </article>
                   ))}
                 </div>
               </div>
             </section>
 
-            {firstLesson ? (
-              <LearningWorkspace
-                courseTitle={course.title}
-                exercise={firstLesson.exercise}
-                lessonTitle={firstLesson.title}
-              />
-            ) : null}
+            <LearningWorkspace
+              courseTitle={course.title}
+              exercise={activeLesson.lesson.exercise}
+              lessonTitle={activeLesson.lesson.title}
+            />
           </>
         )}
       </div>

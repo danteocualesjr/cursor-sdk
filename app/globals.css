@@ -1653,6 +1653,35 @@ textarea.field {
   border-radius: 12px;
 }
 
+.ide-shell .lesson-row {
+  cursor: pointer;
+  display: block;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.ide-shell .lesson-row:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(124, 109, 242, 0.35);
+}
+
+.ide-shell .lesson-row.active {
+  background: rgba(124, 109, 242, 0.16);
+  border-color: rgba(124, 109, 242, 0.55);
+}
+
+.ide-shell .lesson-row.active strong {
+  color: var(--ide-accent-strong);
+}
+
+.lesson-pager {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin: 22px 0 4px;
+}
+
 .ide-code-panel {
   gap: 12px;
   grid-template-rows: auto auto auto minmax(280px, 1fr) auto;
