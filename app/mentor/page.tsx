@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { MentorPanel } from "@/components/MentorPanel";
 import { SubmissionReview } from "@/components/SubmissionReview";
+
+export const metadata: Metadata = {
+  title: "AI mentor",
+  description:
+    "Ask the Cursor SDK-powered mentor for hints, error explanations, or feedback on practice work.",
+};
 
 export default function MentorPage() {
   return (

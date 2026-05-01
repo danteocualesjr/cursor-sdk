@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { LearningWorkspace } from "@/components/LearningWorkspace";
@@ -7,6 +8,43 @@ export function generateStaticParams() {
   return courses.map((course) => ({
     slug: course.slug,
   }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const course = getCourse(slug);
+
+  if (!course) {
+    return {
+      title: "Course not found",
+      description:
+        "The crash-course track you tried to open is not part of the Bootcamp Companion catalog.",
+    };
+  }
+
+  const path = `/courses/${course.slug}`;
+
+  return {
+    title: course.title,
+    description: course.description,
+    keywords: course.tags,
+    alternates: { canonical: path },
+    openGraph: {
+      title: course.title,
+      description: course.description,
+      url: path,
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: course.title,
+      description: course.description,
+    },
+  };
 }
 
 export default async function CoursePage({

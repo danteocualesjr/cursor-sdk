@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ProgressDashboard } from "@/components/ProgressDashboard";
 import { getCatalogSummary, liveCourses } from "@/lib/courses";
+
+export const metadata: Metadata = {
+  title: "Student dashboard",
+  description:
+    "Track active crash courses, jump back into lessons, and see your prep plan at a glance.",
+};
 
 export default function DashboardPage() {
   const nextCourse = liveCourses[0];
