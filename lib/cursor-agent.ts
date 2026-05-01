@@ -13,6 +13,49 @@ type AgentResult = {
   source: "cursor-sdk" | "openai" | "demo";
 };
 
+const DEFAULT_TIMEOUT_MS = 30_000;
+
+function getTimeoutMs(): number {
+  const raw = process.env.AGENT_TIMEOUT_MS;
+  if (!raw) {
+    return DEFAULT_TIMEOUT_MS;
+  }
+
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_TIMEOUT_MS;
+  }
+
+  return parsed;
+}
+
+class AgentTimeoutError extends Error {
+  constructor(timeoutMs: number) {
+    super(`Agent call exceeded ${timeoutMs}ms timeout`);
+    this.name = "AgentTimeoutError";
+  }
+}
+
+async function withTimeout<T>(
+  factory: (signal: AbortSignal) => Promise<T>,
+  timeoutMs: number,
+): Promise<T> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await factory(controller.signal);
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new AgentTimeoutError(timeoutMs);
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 const mentorFallback = `Start by naming the exact concept involved, then test your understanding with one tiny example. If code is failing, read the error from top to bottom, isolate the line that triggered it, and change one thing at a time.`;
 
 const reviewFallback = `Strengths:
@@ -51,7 +94,7 @@ ${input.code ?? "No code provided"}
 Explain in beginner-friendly language. Prefer hints and small examples over giving away the full solution.`;
 }
 
-async function collectRunText(run: unknown): Promise<string> {
+async function collectRunText(run: unknown, signal: AbortSignal): Promise<string> {
   const candidate = run as {
     stream?: () => AsyncIterable<unknown>;
     wait?: () => Promise<unknown>;
@@ -76,6 +119,10 @@ async function collectRunText(run: unknown): Promise<string> {
     const chunks: string[] = [];
 
     for await (const event of candidate.stream()) {
+      if (signal.aborted) {
+        break;
+      }
+
       if (typeof event === "string") {
         chunks.push(event);
         continue;
@@ -99,27 +146,45 @@ async function runOpenAI(input: AgentPrompt, fallback: string): Promise<AgentRes
     };
   }
 
+  const timeoutMs = getTimeoutMs();
+
   try {
     const OpenAI = (await import("openai")).default;
     const client = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
+      timeout: timeoutMs,
     });
 
-    const response = await client.responses.create({
-      model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
-      input: buildPrompt(input),
-    });
+    const response = await withTimeout(
+      (signal) =>
+        client.responses.create(
+          {
+            model: process.env.OPENAI_MODEL ?? "gpt-4.1-mini",
+            input: buildPrompt(input),
+          },
+          { signal },
+        ),
+      timeoutMs,
+    );
 
     return {
       source: "openai",
       text: response.output_text || fallback,
     };
   } catch (error) {
-    console.error("OpenAI run failed", error);
+    const isTimeout = error instanceof AgentTimeoutError;
+    console.error("OpenAI run failed", {
+      message: error instanceof Error ? error.message : String(error),
+      timedOut: isTimeout,
+    });
+
+    const reason = isTimeout
+      ? "the model took too long to respond"
+      : "the model call failed";
 
     return {
       source: "demo",
-      text: `${fallback}\n\nOpenAI is configured in the app, but this request used demo feedback because the model call failed. Check OPENAI_API_KEY, OPENAI_MODEL, billing, and server logs.`,
+      text: `${fallback}\n\nOpenAI is configured in the app, but this request used demo feedback because ${reason}. Check OPENAI_API_KEY, OPENAI_MODEL, billing, and server logs.`,
     };
   }
 }
@@ -131,23 +196,36 @@ export async function runCursorAgent(input: AgentPrompt): Promise<AgentResult> {
     return runOpenAI(input, fallback);
   }
 
+  const timeoutMs = getTimeoutMs();
+
   try {
     const { Agent } = await import("@cursor/sdk");
-    const agent = await Agent.create({
-      apiKey: process.env.CURSOR_API_KEY,
-      model: { id: process.env.CURSOR_MODEL ?? "composer-2" },
-      local: { cwd: process.cwd() },
-    });
 
-    const run = await agent.send(buildPrompt(input));
-    const text = await collectRunText(run);
+    const text = await withTimeout(async (signal) => {
+      const agent = await Agent.create({
+        apiKey: process.env.CURSOR_API_KEY,
+        model: { id: process.env.CURSOR_MODEL ?? "composer-2" },
+        local: { cwd: process.cwd() },
+      });
+
+      if (signal.aborted) {
+        throw new AgentTimeoutError(timeoutMs);
+      }
+
+      const run = await agent.send(buildPrompt(input));
+      return collectRunText(run, signal);
+    }, timeoutMs);
 
     return {
       source: "cursor-sdk",
       text: text || fallback,
     };
   } catch (error) {
-    console.error("Cursor SDK run failed", error);
+    const isTimeout = error instanceof AgentTimeoutError;
+    console.error("Cursor SDK run failed", {
+      message: error instanceof Error ? error.message : String(error),
+      timedOut: isTimeout,
+    });
 
     return runOpenAI(input, fallback);
   }

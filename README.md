@@ -48,6 +48,8 @@ Relevant variables:
 - `CURSOR_MODEL`: Cursor model ID, defaults to `composer-2`.
 - `OPENAI_API_KEY`: fallback OpenAI key.
 - `OPENAI_MODEL`: fallback OpenAI model, defaults to `gpt-4.1-mini`.
+- `AGENT_TIMEOUT_MS`: max wait per AI provider before falling back, defaults
+  to `30000`.
 
 ## Main Routes
 
