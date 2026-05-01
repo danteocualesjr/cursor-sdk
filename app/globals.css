@@ -563,6 +563,18 @@ h3 {
   padding: 7px 10px;
 }
 
+.draft-indicator {
+  background: rgba(115, 201, 145, 0.18) !important;
+  border-color: rgba(115, 201, 145, 0.4) !important;
+  color: #1f6f56 !important;
+}
+
+.ide-shell .draft-indicator {
+  background: rgba(115, 201, 145, 0.16) !important;
+  border-color: rgba(115, 201, 145, 0.32) !important;
+  color: #b8f7c8 !important;
+}
+
 .coach-box,
 .code-card {
   background: #f3efe7;

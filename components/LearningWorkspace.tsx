@@ -1,7 +1,7 @@
 "use client";
 
 import type { DragEvent } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ReviewResponse = {
   review: string;
@@ -12,6 +12,9 @@ type MentorResponse = {
   answer: string;
   source: "cursor-sdk" | "openai" | "demo";
 };
+
+const DRAFT_STORAGE_PREFIX = "bc:draft";
+const DEFAULT_DROP_MESSAGE = "Drop a code file here, or paste directly below.";
 
 function getSourceLabel(source: ReviewResponse["source"] | MentorResponse["source"]) {
   if (source === "cursor-sdk") {
@@ -25,6 +28,39 @@ function getSourceLabel(source: ReviewResponse["source"] | MentorResponse["sourc
   return "Demo AI";
 }
 
+function buildDraftKey(courseTitle: string, lessonTitle?: string) {
+  const lessonKey = lessonTitle ?? "general";
+  return `${DRAFT_STORAGE_PREFIX}:${courseTitle}:${lessonKey}`;
+}
+
+function safeReadDraft(key: string) {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  try {
+    return window.localStorage.getItem(key) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function safeWriteDraft(key: string, value: string) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    if (value) {
+      window.localStorage.setItem(key, value);
+    } else {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // ignore storage errors (private mode, quota, etc.)
+  }
+}
+
 export function LearningWorkspace({
   courseTitle,
   lessonTitle,
@@ -34,14 +70,26 @@ export function LearningWorkspace({
   lessonTitle?: string;
   exercise: string;
 }) {
-  const [submission, setSubmission] = useState("");
+  const draftKey = buildDraftKey(courseTitle, lessonTitle);
+  const [initialDraft] = useState<string>(() => safeReadDraft(draftKey));
+  const [submission, setSubmission] = useState<string>(initialDraft);
   const [coachQuestion, setCoachQuestion] = useState("");
   const [review, setReview] = useState<ReviewResponse | null>(null);
   const [coachResponse, setCoachResponse] = useState<MentorResponse | null>(null);
   const [isReviewing, setIsReviewing] = useState(false);
   const [isCoaching, setIsCoaching] = useState(false);
   const [isCoachEnabled, setIsCoachEnabled] = useState(false);
-  const [dropMessage, setDropMessage] = useState("Drop a code file here, or paste directly below.");
+  const [dropMessage, setDropMessage] = useState(DEFAULT_DROP_MESSAGE);
+  const draftStatus: "idle" | "saved" | "loaded" =
+    submission && submission === initialDraft
+      ? "loaded"
+      : submission
+        ? "saved"
+        : "idle";
+
+  useEffect(() => {
+    safeWriteDraft(draftKey, submission);
+  }, [draftKey, submission]);
   const trimmedSubmission = submission.trim();
   const lineCount = submission ? submission.split(/\r\n|\r|\n/).length : 0;
   const characterCount = submission.length;
@@ -172,6 +220,11 @@ export function LearningWorkspace({
           <span>{lineCount} lines</span>
           <span>{characterCount} characters</span>
           <span>{trimmedSubmission ? "Ready for review" : "Add code to unlock review"}</span>
+          {draftStatus !== "idle" ? (
+            <span className="draft-indicator" aria-live="polite">
+              {draftStatus === "loaded" ? "Draft restored" : "Draft saved"}
+            </span>
+          ) : null}
         </div>
 
         <div className="editor-frame">
@@ -204,7 +257,8 @@ export function LearningWorkspace({
             onClick={() => {
               setSubmission("");
               setReview(null);
-              setDropMessage("Drop a code file here, or paste directly below.");
+              setDropMessage(DEFAULT_DROP_MESSAGE);
+              safeWriteDraft(draftKey, "");
             }}
             type="button"
           >

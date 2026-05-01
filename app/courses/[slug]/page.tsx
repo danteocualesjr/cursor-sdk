@@ -292,6 +292,7 @@ export default async function CoursePage({
             <LearningWorkspace
               courseTitle={course.title}
               exercise={activeLesson.lesson.exercise}
+              key={`${course.slug}:${activeLesson.id}`}
               lessonTitle={activeLesson.lesson.title}
             />
           </>
