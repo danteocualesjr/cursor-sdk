@@ -73,12 +73,14 @@ export function MentorPanel({
       </p>
       <div className="form-stack">
         <textarea
+          aria-label="Question for the AI mentor"
           className="field"
           placeholder="What are you stuck on?"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
         />
         <textarea
+          aria-label="Optional code or error context"
           className="field"
           placeholder="Optional: paste your code or error message"
           value={code}

@@ -9,6 +9,9 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
       {isCourseWorkspace ? null : (
         <div className="shell">
           <nav className="nav" aria-label="Primary navigation">
@@ -24,7 +27,9 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
       )}
-      {children}
+      <div id="main-content" tabIndex={-1}>
+        {children}
+      </div>
       {isCourseWorkspace ? null : (
         <footer className="shell footer">
           Built as a focused MVP for crash-course learning, project practice, and

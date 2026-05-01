@@ -36,6 +36,44 @@ a {
   text-decoration: none;
 }
 
+.skip-link {
+  background: var(--ink);
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 800;
+  left: 12px;
+  padding: 10px 14px;
+  position: fixed;
+  top: -200px;
+  transition: top 120ms ease;
+  z-index: 100;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  top: 12px;
+}
+
+#main-content:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.ide-shell :focus-visible {
+  outline-color: var(--ide-accent-strong);
+}
+
+.ide-shell .skip-link {
+  background: var(--ide-accent);
+}
+
 button,
 input,
 textarea,

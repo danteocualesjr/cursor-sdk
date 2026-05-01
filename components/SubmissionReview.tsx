@@ -68,6 +68,7 @@ export function SubmissionReview({
       <p className="muted">{exercise}</p>
       <div className="form-stack">
         <textarea
+          aria-label="Submission for review"
           className="field"
           placeholder="Paste your code, repo notes, or a short summary of your solution."
           value={submission}

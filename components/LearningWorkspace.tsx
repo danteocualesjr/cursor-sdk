@@ -314,6 +314,7 @@ export function LearningWorkspace({
             </button>
           </div>
           <textarea
+            aria-label="Question for the AI coach"
             className="field coach-field"
             disabled={!isCoachEnabled}
             placeholder="Ask for a hint, error explanation, or next step..."
